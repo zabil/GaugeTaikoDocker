@@ -20,7 +20,7 @@ This is sample gauge project illustrating gauge + taiko usage in a docker contai
 
 Now there are multiple ways to achieve this
     * Pass these args directly to the `openBrowser` API. Ex: `openBropwser({headles: true, args:["--no-sandbox","--start-maximized","--disable-dev-shm-usage"]})`;
-    * Set `TAIKO_BROWSER_ARGS` env as required args list in the Dockerfile. ex: `export TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage`.
+    * Set `TAIKO_BROWSER_ARGS` env as required args list in the Dockerfile. ex: `ENV TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage`.
     * Set the `TAIKO_BROWSER_ARGS` env while running the dokcer command. `docker run -e TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage -it IMAGE_NAME COMMAND`
 
 ## How to run
