@@ -39,5 +39,5 @@ Now there are multiple ways to achieve this
 
     If you need to see the reports
 
-    * Run `docker run -v $(pwd)/gauge-reports:/gauge/reports -e TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage -e headless_chrome=true -it gauge-taiko /bin/sh -c "npm install &&  npm test"` and then you can see the report in your host machine at `$(pwd)/gauger-reports` dir.
+    * Run `docker run -v $(pwd)/gauge-reports:/gauge/reports -e TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage -e headless_chrome=true -it gauge-taiko /bin/sh -c "npm install &&  npm test"` and then you can see the report in your host machine at `$(pwd)/gauge-reports` dir.
 
