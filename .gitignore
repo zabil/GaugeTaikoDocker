@@ -11,3 +11,5 @@ reports
 node_modules
 
 .vscode
+
+gauge-reports
