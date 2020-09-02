@@ -30,7 +30,7 @@ jobs:
         name: Upload reports
         with:
           name: gauge-reports
-          path: $(pwd)/gauge-reports/
+          path: ./gauge-reports/
 
   scenario2:
     name: Use pre built image
@@ -59,4 +59,4 @@ jobs:
         name: Upload reports
         with:
           name: gauge-reports
-          path: $(pwd)/reports/
+          path: ./reports/
