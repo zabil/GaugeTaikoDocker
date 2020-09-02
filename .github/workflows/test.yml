@@ -29,7 +29,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         name: Upload reports
         with:
-          name: gauge-reports
+          name: gauge-reports-from-local-build-image
           path: ./gauge-reports/
 
   scenario2:
@@ -58,5 +58,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         name: Upload reports
         with:
-          name: gauge-reports
+          name: gauge-reports-from-pulled-image
           path: ./reports/
