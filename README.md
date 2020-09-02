@@ -8,7 +8,7 @@ This is sample gauge project illustrating gauge + taiko usage in a docker contai
 
 ## Notes
 
-* To run taiko inside a docker container the browser always needs to be launched in headless mode
+* To run taiko inside a docker container the browser needs to be launched in headless mode unless you use `xvfb`
     Ex: `openBrowser({headless: true})`
 
     This project use a env to check if the headless should be true or not. Set `headless_chrome` env to true in `headless.properties` file or as a environment variable.
