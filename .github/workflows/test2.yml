@@ -1,0 +1,32 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Test in docker (Use pre built image)
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build Image
+        run: |
+          docker pull docker.pkg.github.com/getgauge-examples/gauge-docker/gauge-taiko:latest
+
+      - name: Run test by mounting test code
+        run: |
+          docker run \
+          -v $(pwd):/gauge \
+          -w /gauge \
+          -e headless_chrome=true \
+          -t docker.pkg.github.com/getgauge-examples/gauge-docker/gauge-taiko:latest \
+          /bin/bash -c "npm ci && npm test"
+
+      - uses: actions/upload-artifact@v2
+        name: Upload reports
+        with:
+          name: gauge-reports
+          path: $(pwd)/reports/*

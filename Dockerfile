@@ -1,5 +1,7 @@
 FROM node
 
+ENV TAIKO_BROWSER_ARGS --no-sandbox,--start-maximized,--disable-dev-shm-usage
+
 # Add required depedencies to run chromium
 RUN apt-get update && \
     apt-get -y install xvfb gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 \
@@ -10,8 +12,16 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install gauge globally
-RUN npm install -g @getgauge/cli --unsafe-perm
+RUN npm install -g @getgauge/cli@1.1.1 --unsafe-perm
 
+# Add test code
 ADD . /gauge
 
+# Set working dir
 WORKDIR /gauge
+
+# Install dep
+RUN npm install;
+
+# Install gauge plugins
+RUN gauge install;
