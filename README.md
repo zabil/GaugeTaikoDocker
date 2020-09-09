@@ -18,10 +18,10 @@ This is sample gauge project illustrating gauge + taiko usage in a docker contai
     * --start-maximized
     * --disable-dev-shm-usage
 
-Now there are multiple ways to achieve this
-    * Pass these args directly to the `openBrowser` API. Ex: `openBropwser({headles: true, args:["--no-sandbox","--start-maximized","--disable-dev-shm-usage"]})`;
-    * Set `TAIKO_BROWSER_ARGS` env as required args list in the Dockerfile. ex: `ENV TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage`.
-    * Set the `TAIKO_BROWSER_ARGS` env while running the dokcer command. `docker run -e TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage -it IMAGE_NAME COMMAND`
+    There are multiple ways to achieve this
+        * Pass these args directly to the `openBrowser` API. Ex: `openBropwser({headles: true, args:["--no-sandbox","--start-maximized","--disable-dev-shm-usage"]})`;
+        * Set `TAIKO_BROWSER_ARGS` env as required args list in the Dockerfile. ex: `ENV TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage`.
+        * Set the `TAIKO_BROWSER_ARGS` env while running the dokcer command. `docker run -e TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage -it IMAGE_NAME COMMAND`
 
 ## How to run
 
@@ -31,13 +31,25 @@ Now there are multiple ways to achieve this
     * Run `docker build . -t gauge-taiko`
 
 * Run tests
-    * Run `docker run -e TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage -e headless_chrome=true -it gauge-taiko /bin/sh -c "npm install &&  npm test"`
+    * Run `docker run -t gauge-taiko`
 
     or to run `gauge` args
 
-    * Run `docker run -e TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage -e headless_chrome=true -it gauge-taiko /bin/sh -c "npm install && npm run gauge -- {args for gauge command}"`
+    * Run `docker run --entrypoint="" -t gauge-taiko npx gauge {args for gauge command}`
 
-    If you need to see the reports
 
-    * Run `docker run -v $(pwd)/gauge-reports:/gauge/reports -e TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage -e headless_chrome=true -it gauge-taiko /bin/sh -c "npm install &&  npm test"` and then you can see the report in your host machine at `$(pwd)/gauge-reports` dir.
+* Viewing Reports / Logs
 
+    * By default docker streams the stdout/stderr back to the host. So you get the console report without having to anything extra.
+
+    * Mac/Windows
+
+        * Run `docker run -v $(pwd)/gauge-reports:/gauge/reports -t gauge-taiko ` and then you can see the report in your host machine at `$(pwd)/gauge-reports` dir.
+
+    * Linux
+        * In Linux, viewing files generated in the container is not trivial. Since the Dockerfile uses a non-privileged users, mounting host volume
+    does not work. (see https://github.com/moby/moby/issues/2259). As a workaround,
+        * `docker create --name=gauge-taiko-test -t gauge-taiko` - Create a container
+        * `docker start -a gauge-taiko-test` - Run the test
+        * `docker cp gauge-taiko-test:/gauge/reports/ <DEST_PATH>` - copy the reports into the host
+        * `docker rm gauge-taiko-test` Clean up

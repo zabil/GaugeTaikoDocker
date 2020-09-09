@@ -1,27 +1,30 @@
-FROM node
+FROM node:12.18.3-buster-slim@sha256:dd6aa3ed10af4374b88f8a6624aeee7522772bb08e8dd5e917ff729d1d3c3a4f
+# Since Gauge and Taiko have first class npm support. This project can be run on a basic node image..
 
-ENV TAIKO_BROWSER_ARGS --no-sandbox,--start-maximized,--disable-dev-shm-usage
+RUN apt-get update \
+     && apt-get install -y wget gnupg ca-certificates \
+     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+     && apt-get update \
+     && apt-get install -y google-chrome-stable \
+     && npm install -g @getgauge/cli@1.1.1 --unsafe-perm
 
-# Add required depedencies to run chromium
-RUN apt-get update && \
-    apt-get -y install xvfb gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 \
-      libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 \
-      libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 \
-      libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 \
-      libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget && \
-    rm -rf /var/lib/apt/lists/*
+# The Taiko installation downloads and installs the chromium required to run the tests. 
+# However, we need the chromium dependencies installed in the environment. 
+# These days, most Dockerfiles just install chrome to get the dependencies.
 
-# Install gauge globally
-RUN npm install -g @getgauge/cli@1.1.1 --unsafe-perm
+ENV TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage
+ENV NPM_CONFIG_PREFIX=/home/gaugeuser/.npm-global
+ENV headless_chrome=true
 
-# Add test code
 ADD . /gauge
-
-# Set working dir
 WORKDIR /gauge
 
-# Install dep
-RUN npm install;
+RUN groupadd -r gaugeuser && useradd -r -g gaugeuser -G audio,video gaugeuser && \
+   mkdir -p /home/gaugeuser && \
+   chown -R gaugeuser:gaugeuser /home/gaugeuser /gauge
 
-# Install gauge plugins
-RUN gauge install;
+USER gaugeuser
+RUN npm install && gauge install
+
+ENTRYPOINT ["npm", "test"]
