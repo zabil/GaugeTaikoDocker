@@ -1,30 +1,50 @@
+# This image uses the official node base image.
 FROM node:12.18.3-buster-slim@sha256:dd6aa3ed10af4374b88f8a6624aeee7522772bb08e8dd5e917ff729d1d3c3a4f
-# Since Gauge and Taiko have first class npm support. This project can be run on a basic node image..
-
+ 
+# The Taiko installation downloads and installs the chromium required to run the tests. 
+# However, we need the chromium dependencies installed in the environment. These days, most # Dockerfiles just install chrome to get the dependencies.
 RUN apt-get update \
      && apt-get install -y wget gnupg ca-certificates \
      && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
      && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
      && apt-get update \
-     && apt-get install -y google-chrome-stable \
-     && npm install -g @getgauge/cli@1.1.1 --unsafe-perm
+     && apt-get install -y google-chrome-stable
+ 
+# Set a custom npm install location so that Gauge, Taiko and dependencies can be 
+# installed without root privileges
+ENV NPM_CONFIG_PREFIX=/home/gauge/.npm-packages
+ENV PATH="${NPM_CONFIG_PREFIX}/bin:${PATH}"
 
-# The Taiko installation downloads and installs the chromium required to run the tests. 
-# However, we need the chromium dependencies installed in the environment. 
-# These days, most Dockerfiles just install chrome to get the dependencies.
-
+# Add the Taiko browser arguments
 ENV TAIKO_BROWSER_ARGS=--no-sandbox,--start-maximized,--disable-dev-shm-usage
-ENV NPM_CONFIG_PREFIX=/home/gaugeuser/.npm-global
 ENV headless_chrome=true
-
+ENV TAIKO_SKIP_DOCUMENTATION=true
+#ENV TAIKO_SKIP_CHROMIUM_DOWNLOAD=true
+#ENV TAIKO_BROWSER_PATH=/usr/bin/google-chrome
+ 
+# Add test code
 ADD . /gauge
+
+# Set working directory
 WORKDIR /gauge
+ 
+# Copy the local working folder
+COPY . .
 
-RUN groupadd -r gaugeuser && useradd -r -g gaugeuser -G audio,video gaugeuser && \
-   mkdir -p /home/gaugeuser && \
-   chown -R gaugeuser:gaugeuser /home/gaugeuser /gauge
+# Create an unprivileged user to run Taiko tests
+RUN groupadd -r gauge && useradd -r -g gauge -G audio,video gauge && \
+   mkdir -p /home/gauge && \
+   chown -R gauge:gauge /home/gauge /gauge
+ 
+USER gauge
 
-USER gaugeuser
-RUN npm install && gauge install
+# Install dependencies and plugins
+RUN npm install -g @getgauge/cli \
+    && npm install \
+    && gauge install \
+    && gauge install screenshot \
+    && gauge config check_updates false
 
+# Default command on running the image
 ENTRYPOINT ["npm", "test"]
+
