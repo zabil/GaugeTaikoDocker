@@ -1,5 +1,10 @@
+# Building the image
+# 	docker build -t gauge-taiko .
+# Running the image
+# 	docker run  --rm -it -v ${PWD}/reports:/gauge/reports gauge-taiko
+
 # This image uses the official node base image.
-FROM node:12.18.3-buster-slim@sha256:dd6aa3ed10af4374b88f8a6624aeee7522772bb08e8dd5e917ff729d1d3c3a4f
+FROM node
  
 # The Taiko installation downloads and installs the chromium required to run the tests. 
 # However, we need the chromium dependencies installed in the environment. These days, most # Dockerfiles just install chrome to get the dependencies.
@@ -47,4 +52,3 @@ RUN npm install -g @getgauge/cli \
 
 # Default command on running the image
 ENTRYPOINT ["npm", "test"]
-
